@@ -107,4 +107,21 @@ async function cancelTicket(req, res) {
     }
 }
 
-module.exports = { getAllBookings, bookTicket, cancelTicket };
+async function getAllBookingsOnEvent(req, res) {
+    const {eventId} = req.params;
+    try {
+        let bookings = await bookingModel.find({ event: eventId }).populate("attendee").populate("event");
+
+        if (!bookings) {
+            return res.json(new ApiResponse(false, null, "Event not found"));
+        }
+
+        return res.json(new ApiResponse(true, bookings, "success"));
+
+    } catch (error) {
+        console.error(error);
+        return res.json(new ApiResponse(false, null, error.message));
+    }
+}
+
+module.exports = { getAllBookings, bookTicket, cancelTicket,getAllBookingsOnEvent };

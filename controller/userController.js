@@ -2,6 +2,7 @@ const User = require("../model/userModel");
 const ApiResponse = require("../response/pattern");
 const JWT = require('../config/tokenManager')
 const Bcrypt = require("../config/passwordHashing");
+const transporter = require("../config/nodemailer");
 
 async function userRegister(req, res) {
     const { username, email, password } = req.body;
@@ -17,7 +18,23 @@ async function userRegister(req, res) {
             return res.json(new ApiResponse(false, null, "User not created"));
         }
 
-        return res.json(new ApiResponse(true, user, "User created successfully"));
+        let mailOption = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: "Wellcome Message",
+            html: `<h1>Dear ${user.username}</h1>
+           <b>wellcome to our Website</b>`
+        }
+
+         transporter.sendMail(mailOption, (error, info) => {
+            if (error) {
+                return res.json(new ApiResponse(true, user, "User created successfully And mail not sent"));
+            }
+
+            return res.json(new ApiResponse(true, user, "User created successfully And Mail Sent To User"));
+        })
+
+        // return res.json(new ApiResponse(true, user, "User created successfully"));
 
     } catch (error) {
         console.error(error);
@@ -29,12 +46,12 @@ async function userLogin(req, res) {
     const { email, password } = req.body;
     try {
         let user = await User.findOne({ email, isAdmin: false });
-        
+
         if (!user) {
             return res.json(new ApiResponse(false, null, "User not found"));
         }
         user = user.toObject();
-        
+
         let isMatch = await Bcrypt.comparePassword(password, user.password);
 
         if (!isMatch) {

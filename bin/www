@@ -4,6 +4,7 @@
  * Module dependencies.
  */
 
+const transporter = require('../config/nodemailer');
 const Connect = require('../config/dbConnect');
 const app = require('../app');
 const debug = require('debug')('event-orgnizer-nodejs:server');
@@ -28,7 +29,14 @@ const server = http.createServer(app);
  */
 
 server.listen(port, async () => {
-  await Connect()
+  try {
+    await Connect()
+    await transporter.verify()
+    console.log('Email service is ready to send messages');
+
+  } catch (error) {
+    console.log('Error connecting to email service:', error);
+  }
 });
 server.on('error', onError);
 server.on('listening', onListening);

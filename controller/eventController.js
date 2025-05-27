@@ -17,6 +17,22 @@ async function getAllEvents(req, res) {
     }
 }
 
+async function getMyEvents(req, res) {
+    try {
+        let event = await Event.find({ creator: req.data._id, isDeleted: false }).populate("creator");
+
+        if (!event) {
+            return res.json(new ApiResponse(false, null, "Event not found"));
+        }
+
+        return res.json(new ApiResponse(true, event, "success"));
+
+    } catch (error) {
+        console.error(error);
+        return res.json(new ApiResponse(false, null, error.message));
+    }
+}
+
 async function createEvent(req, res) {
     const { title, description, date, time, available_slots, event_category, price, location } = req.body;
 
@@ -56,7 +72,7 @@ async function cancelEvent(req, res) {
     let { eventId } = req.params;
     const { cancel_message } = req.body;
     try {
-        let event = await Event.findByIdAndUpdate(eventId, { cancel_message, isCancel: true }, { new: true }).populate("creator");
+        let event = await Event.findOneAndUpdate({ _id: eventId, creator: req.data._id }, { cancel_message, isCancel: true }, { new: true }).populate("creator");
 
         if (!event) {
             return res.json(new ApiResponse(false, null, "Event not found"));
@@ -73,7 +89,7 @@ async function cancelEvent(req, res) {
 async function deleteEvent(req, res) {
     let { eventId } = req.params;
     try {
-        let event = await Event.findByIdAndUpdate(eventId, { isDeleted: true }, { new: true }).populate("creator");
+        let event = await Event.findOneAndUpdate({ _id: eventId, creator: req.data._id }, { isDeleted: true }, { new: true }).populate("creator");
 
         if (!event) {
             return res.json(new ApiResponse(false, null, "Event not found"));
@@ -99,7 +115,7 @@ async function editEvent(req, res) {
 
     try {
 
-        let evenObj = await Event.findOne({ _id: eventId, isCancel: false, isDeleted: false });
+        let evenObj = await Event.findOne({ _id: eventId, isCancel: false, isDeleted: false,creator : req.data._id });
 
         if (!evenObj) {
             return res.json(new ApiResponse(false, null, "Event not found"));
@@ -125,4 +141,4 @@ async function editEvent(req, res) {
     }
 }
 
-module.exports = { getAllEvents, createEvent, cancelEvent, deleteEvent, editEvent };
+module.exports = { getAllEvents, createEvent, cancelEvent, deleteEvent, editEvent, getMyEvents };

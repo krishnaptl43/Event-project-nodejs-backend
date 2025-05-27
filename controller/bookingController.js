@@ -108,8 +108,15 @@ async function cancelTicket(req, res) {
 }
 
 async function getAllBookingsOnEvent(req, res) {
-    const {eventId} = req.params;
+    const { eventId } = req.params;
     try {
+
+        let findEvent = await Event.findOne({ _id: eventId, creator: req.data._id });
+
+        if (!findEvent) {
+            return res.json(new ApiResponse(false, null, "Event not found"));
+        }
+
         let bookings = await bookingModel.find({ event: eventId }).populate("attendee").populate("event");
 
         if (!bookings) {
@@ -124,4 +131,4 @@ async function getAllBookingsOnEvent(req, res) {
     }
 }
 
-module.exports = { getAllBookings, bookTicket, cancelTicket,getAllBookingsOnEvent };
+module.exports = { getAllBookings, bookTicket, cancelTicket, getAllBookingsOnEvent };

@@ -26,7 +26,7 @@ async function userRegister(req, res) {
            <b>wellcome to our Website</b>`
         }
 
-         transporter.sendMail(mailOption, (error, info) => {
+        transporter.sendMail(mailOption, (error, info) => {
             if (error) {
                 return res.json(new ApiResponse(true, user, "User created successfully And mail not sent"));
             }
@@ -87,4 +87,22 @@ async function getUserById(req, res) {
     }
 }
 
-module.exports = { userRegister, userLogin, getUserById };
+async function uploadProfile(req, res) {
+
+    let url = `${req.protocol}://${req.host}/${req.file.path?.replaceAll("\\", "/")}`
+    try {
+        let user = await User.findOneAndUpdate({ _id: req.data._id }, { profilePic: url }, { new: true });
+
+        if (!user) {
+            return res.json(new ApiResponse(false, null, "Users not found"));
+        }
+
+        return res.json(new ApiResponse(true, user, "success"));
+
+    } catch (error) {
+        console.error(error);
+        return res.json(new ApiResponse(false, null, error.message));
+    }
+}
+
+module.exports = { userRegister, userLogin, getUserById, uploadProfile };

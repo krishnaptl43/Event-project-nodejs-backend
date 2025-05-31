@@ -2,8 +2,12 @@ const express = require('express');
 const { getUserById, uploadProfile } = require('../controller/userController');
 const { adminMiddleware } = require('../middleware/Middlewares');
 const { adminLogin } = require('../controller/adminController');
-const upload = require("../config/multer")
+const {storage,profileFiter} = require("../config/multer");
+const multer = require('multer');
 const router = express.Router();
+
+const upload = multer({storage,fileFilter : profileFiter,limits : { fileSize : 1024 * 1024 }});
+
 
 // get all users http://localhost:8000/api/admin
 router.get("/", adminMiddleware, getUserById)

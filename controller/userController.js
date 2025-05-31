@@ -89,7 +89,7 @@ async function getUserById(req, res) {
 
 async function uploadProfile(req, res) {
 
-    let url = `${req.protocol}://${req.host}/${req.file.path?.replaceAll("\\", "/")}`
+    let url = `${req.protocol}://${req.host}/${req?.file?.path?.replaceAll("\\", "/")}`
     try {
         let user = await User.findOneAndUpdate({ _id: req.data._id }, { profilePic: url }, { new: true });
 

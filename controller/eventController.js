@@ -43,6 +43,8 @@ async function createEvent(req, res) {
         return res.json(new ApiResponse(false, null, "! Invalid Date, You Can Not Create Event In Past"))
     }
 
+    let url = `${req.protocol}://${req.host}/${req?.file?.path?.replaceAll("\\", "/")}`
+
     try {
         let event = await Event.create({
             title,
@@ -53,6 +55,7 @@ async function createEvent(req, res) {
             per_slot_price: price,
             location,
             event_category,
+            thumbnail : url,
             creator: req.data._id
         });
 

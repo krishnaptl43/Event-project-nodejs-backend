@@ -7,6 +7,7 @@ const cors = require('cors');
 
 const indexRouter = require('./routes/index');
 const apiRouter = require('./routes/api');
+const ApiResponse = require('./response/pattern');
 
 const app = express();
 
@@ -24,7 +25,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use("/uploads",express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, 'uploads')));
 app.use('/', indexRouter);
 app.use('/api', apiRouter);
 
@@ -41,7 +42,7 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.json(new ApiResponse(false, null, err));
 });
 
 module.exports = app;

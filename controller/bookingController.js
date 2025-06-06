@@ -1,6 +1,7 @@
 const Event = require("../model/eventModel");
 const bookingModel = require("../model/bookingModel");
 const ApiResponse = require("../response/pattern");
+const { Schema } = require("mongoose");
 
 async function getAllBookings(req, res) {
     try {
@@ -131,4 +132,25 @@ async function getAllBookingsOnEvent(req, res) {
     }
 }
 
-module.exports = { getAllBookings, bookTicket, cancelTicket, getAllBookingsOnEvent };
+
+async function getAllBookingsOnMyEvent(req, res) {
+    try {
+
+        let bookings = await bookingModel.find().populate("attendee").populate("event")
+
+        if (!bookings) {
+            return res.json(new ApiResponse(false, null, "Event not found"));
+        }
+
+
+        let filter = bookings.filter((ele) => ele.event.creator == req.data._id)
+
+        return res.json(new ApiResponse(true, filter, "success"));
+
+    } catch (error) {
+        console.error(error);
+        return res.json(new ApiResponse(false, null, error.message));
+    }
+}
+
+module.exports = { getAllBookings, bookTicket, cancelTicket, getAllBookingsOnEvent, getAllBookingsOnMyEvent };

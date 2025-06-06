@@ -1,6 +1,6 @@
 const express = require('express');
 const { userMiddleware, adminMiddleware } = require('../middleware/Middlewares');
-const { getAllBookings, bookTicket, cancelTicket,getAllBookingsOnEvent } = require('../controller/bookingController');
+const { getAllBookings, bookTicket, cancelTicket,getAllBookingsOnEvent,getAllBookingsOnMyEvent } = require('../controller/bookingController');
 const router = express.Router();
 
 // get all users http://localhost:8000/api/booking/
@@ -15,5 +15,8 @@ router.put("/cancel-ticket/:bookId", userMiddleware, cancelTicket)
 // get all users http://localhost:8000/api/booking/event/:eventId
 router.get("/event/:eventId", adminMiddleware, getAllBookingsOnEvent)
 
+
+// get all users http://localhost:8000/api/booking/event/all
+router.get("/event/", adminMiddleware, getAllBookingsOnMyEvent)
 
 module.exports = router;
